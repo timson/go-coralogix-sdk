@@ -7,10 +7,11 @@ import (
 // Hook is presenting Coralogix Logger for Logrus library
 type Hook struct {
 	Writer LoggerManager
+	FireLevels []logrus.Level
 }
 
 // NewCoralogixHook build Coralogix logger hook
-func NewCoralogixHook(PrivateKey string, ApplicationName string, SubsystemName string) *Hook {
+func NewCoralogixHook(PrivateKey string, ApplicationName string, SubsystemName string, FireLevels []logrus.Level) *Hook {
 	NewHookInstance := &Hook{
 		*NewLoggerManager(
 			PrivateKey,
@@ -18,6 +19,7 @@ func NewCoralogixHook(PrivateKey string, ApplicationName string, SubsystemName s
 			SubsystemName,
 			true,
 		),
+		FireLevels,
 	}
 
 	go NewHookInstance.Writer.Run()
@@ -118,7 +120,7 @@ func (hook *Hook) Fire(entry *logrus.Entry) error {
 
 // Levels return levels which can be sent with this hook
 func (hook *Hook) Levels() []logrus.Level {
-	return logrus.AllLevels
+	return hook.FireLevels
 }
 
 // Close is a defer function for buffer cleanup before exit
